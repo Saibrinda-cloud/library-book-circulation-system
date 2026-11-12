@@ -1,7 +1,3 @@
-# Library Management System (Flask, Psycopg 3 and PostgreSQL)
-
-A small database-driven web application for a college library. A **librarian** manages books and members, issues and returns books and records fine payments. A **student** searches the catalogue, sees only their own borrowing history, due dates and fines, and reviews books.
-
 | Layer | Technology | Role |
 |---|---|---|
 | Interface | HTML and CSS (Jinja templates) | Pages and forms |
@@ -383,3 +379,5 @@ Hard-refresh the browser (Ctrl + F5). Check that `static/css/style.css` exists a
 - Roles are checked on the server for every request, and a student's `member_id` always comes from the server-side session, never from a URL or form field.
 - Keep `.env` private. Remove the demo accounts and use HTTPS (set `SESSION_COOKIE_SECURE = True` in `config.py`) before any real deployment.
 - The built-in Flask server (`flask run`) is for local development and demonstration only.
+# library-book-circulation-system
+A database-driven Library Book Circulation, Fine and Member Services System using Flask and PostgreSQL.
