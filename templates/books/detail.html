@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ book.title }}</h1>
+  {% if g.user.role_name == 'Librarian' %}
+  <div class="actions">
+    <a class="btn btn--ghost" href="{{ url_for('books.edit', book_id=book.book_id) }}">Edit</a>
+    <form method="post" action="{{ url_for('books.delete', book_id=book.book_id) }}" onsubmit="return confirm('Delete this book?');">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn btn--danger" type="submit">Delete</button></form>
+  </div>{% endif %}
+</div>
+<div class="panel">
+  <dl class="book-meta">
+    <dt>Author</dt><dd>{{ book.author }}</dd>
+    <dt>Category</dt><dd>{{ book.category }}</dd>
+    <dt>Publisher</dt><dd>{{ book.publisher or '\u2013' }}{% if book.publication_year %}, {{ book.publication_year }}{% endif %}</dd>
+    <dt>ISBN</dt><dd>{{ book.isbn or 'Not recorded' }}</dd>
+    <dt>Availability</dt><dd>
+      {% if book.available_copies > 0 %}<span class="badge badge--ok">{{ book.available_copies }} available</span>{% else %}<span class="badge badge--late">No copy available</span>{% endif %}
+      <span class="muted">{{ book.currently_issued }} on loan, {{ book.damaged_copies }} damaged, {{ book.total_copies }} owned</span></dd>
+    <dt>Rating</dt><dd>{% if book.review_count %}<span class="stars">{{ book.average_rating|stars }}</span> {{ book.average_rating }} from {{ book.review_count }} review{{ '' if book.review_count == 1 else 's' }}{% else %}No reviews yet{% endif %}</dd>
+  </dl>
+</div>
+
+<h2>Reviews</h2>
+<div class="panel">
+  {% for r in reviews %}
+    <div class="review"><b>{{ r.full_name }}</b> <span class="stars">{{ r.rating|stars }}</span> <span class="muted">{{ r.review_date|fdate }}</span>
+      {% if r.review_text %}<p>{{ r.review_text }}</p>{% endif %}</div>
+  {% else %}<p class="muted">No reviews yet.</p>{% endfor %}
+</div>
+
+{% if g.user.role_name == 'Student' %}
+  {% if has_reviewed %}
+    <p class="muted">You have already reviewed this book.</p>
+  {% else %}
+  <h2>Write a review</h2>
+  <div class="panel">
+    <form method="post" action="{{ url_for('reviews.submit', book_id=book.book_id) }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="field"><label for="rating">Rating *</label>
+        <select id="rating" name="rating" required><option value="">Choose 1 to 5</option>
+          {% for n in range(5, 0, -1) %}<option value="{{ n }}">{{ n }} {{ '\u2605' * n }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="review_text">Your review (optional, up to 1000 characters)</label>
+        <textarea id="review_text" name="review_text" maxlength="1000"></textarea></div>
+      <button class="btn" type="submit">Submit review</button>
+    </form>
+  </div>
+  {% endif %}
+{% endif %}
+<p><a href="{{ url_for('books.list_books') }}">Back to all books</a></p>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ title }}</h1>
+  {% if g.user.role_name == 'Librarian' %}<a href="{{ url_for('reports.index') }}">All reports</a>{% endif %}</div>
+<p class="muted">{{ intro }}</p>
+<div class="table-wrap">
+{% if rows %}
+<table>
+  <thead><tr>{% for key, heading, kind in columns %}<th class="{{ 'num' if kind in ('int', 'money', 'rating') }}">{{ heading }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for row in rows %}<tr>
+    {% for key, heading, kind in columns %}
+      {% set v = row[key] %}
+      {% if kind == 'date' %}<td>{{ v|fdate }}</td>
+      {% elif kind == 'money' %}<td class="num">{{ v|money }}</td>
+      {% elif kind == 'int' %}<td class="num">{{ v if v is not none else '\u2013' }}</td>
+      {% elif kind == 'rating' %}<td class="num">{% if v is not none %}<span class="stars">{{ v|stars }}</span> {{ v }}{% else %}<span class="muted">No reviews</span>{% endif %}</td>
+      {% else %}<td>{{ v if v is not none else '\u2013' }}</td>{% endif %}
+    {% endfor %}</tr>{% endfor %}
+  </tbody>
+</table>
+{% else %}<div class="empty">Nothing to report.</div>{% endif %}
+</div>
+{% endblock %}

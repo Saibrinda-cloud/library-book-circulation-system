@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Edit member' if member else 'Add a member' }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ 'Edit member' if member else 'Add a member' }}</h1></div>
+<div class="panel">
+<form method="post" novalidate autocomplete="off">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="form-grid">
+    {{ field('full_name', 'Full name', form, errors, required=true) }}
+    {{ field('email', 'E-mail', form, errors, type='email', required=true) }}
+    {{ field('phone', 'Phone', form, errors) }}
+    <div class="field"><label for="role_id">Role *</label>
+      <select id="role_id" name="role_id" {{ 'class=invalid' if errors.get('role_id') }} required>
+        <option value="">Choose a role</option>
+        {% for r in roles %}<option value="{{ r.role_id }}" {{ 'selected' if (form.get('role_id')|string) == (r.role_id|string) }}>{{ r.role_name }}</option>{% endfor %}
+      </select>
+      {% if errors.get('role_id') %}<div class="error">{{ errors['role_id'] }}</div>{% endif %}</div>
+    {{ field('password', 'Password' ~ (' (leave empty to keep the current one)' if member else ''), form, errors, type='password', required=(not member), hint='At least 8 characters. Stored only as a salted hash.') }}
+  </div>
+  <div class="actions"><button class="btn" type="submit">{{ 'Save changes' if member else 'Add member' }}</button>
+    <a class="btn btn--ghost" href="{{ url_for('members.list_members') }}">Cancel</a></div>
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import pager %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Books</h1>
+  {% if g.user.role_name == 'Librarian' %}<a class="btn" href="{{ url_for('books.new') }}">Add a book</a>{% endif %}</div>
+<form class="filters" method="get" action="{{ url_for('books.list_books') }}">
+  <div class="field field--wide"><label for="q">Search title, author, category or ISBN</label>
+    <input id="q" name="q" value="{{ q }}" maxlength="100"></div>
+  <div class="field"><label for="category">Category</label>
+    <select id="category" name="category"><option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c }}" {{ 'selected' if c == category }}>{{ c }}</option>{% endfor %}
+    </select></div>
+  <div class="field"><label class="check"><input type="checkbox" name="available" value="1" {{ 'checked' if only_available }}> Available now</label></div>
+  <button class="btn" type="submit">Search</button>
+  <a class="btn btn--ghost" href="{{ url_for('books.list_books') }}">Clear</a>
+</form>
+<div class="table-wrap">
+{% if rows %}
+<table>
+  <thead><tr><th>Title</th><th>Category</th><th class="num">Available</th><th>Rating</th>{% if g.user.role_name == 'Librarian' %}<th></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for b in rows %}
+    <tr>
+      <td><a href="{{ url_for('books.detail', book_id=b.book_id) }}">{{ b.title }}</a><div class="muted">{{ b.author }}</div></td>
+      <td>{{ b.category }}</td>
+      <td class="num">{% if b.available_copies > 0 %}<span class="badge badge--ok">{{ b.available_copies }} of {{ b.total_copies - b.damaged_copies }}</span>{% else %}<span class="badge badge--late">None</span>{% endif %}</td>
+      <td>{% if b.review_count %}<span class="stars" title="{{ b.average_rating }} from {{ b.review_count }} review(s)">{{ b.average_rating|stars }}</span> <span class="muted">({{ b.review_count }})</span>{% else %}<span class="muted">No reviews</span>{% endif %}</td>
+      {% if g.user.role_name == 'Librarian' %}<td><a class="btn btn--ghost btn--small" href="{{ url_for('books.edit', book_id=b.book_id) }}">Edit</a></td>{% endif %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<div class="empty">No books match your search. Try fewer words or <a href="{{ url_for('books.list_books') }}">clear the filters</a>.</div>{% endif %}
+</div>
+{{ pager(pg) }}
+{% endblock %}

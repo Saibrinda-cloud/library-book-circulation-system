@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Issue a book{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Issue a book</h1></div>
+<div class="panel">
+  <p>The loan period is {{ loan_days }} days. A late return costs Rs. {{ fine_per_day }} for each overdue day. Only books with an available copy are listed.</p>
+  <form method="post">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="form-grid">
+      <div class="field"><label for="member_id">Student *</label>
+        <select id="member_id" name="member_id" required><option value="">Choose a student</option>
+          {% for s in students %}<option value="{{ s.member_id }}">{{ s.full_name }} ({{ s.email }})</option>{% endfor %}</select></div>
+      <div class="field"><label for="book_id">Book *</label>
+        <select id="book_id" name="book_id" required><option value="">Choose a book</option>
+          {% for b in books %}<option value="{{ b.book_id }}">{{ b.title }} ({{ b.available_copies }} available)</option>{% endfor %}</select></div>
+    </div>
+    <div class="actions"><button class="btn" type="submit">Issue book</button>
+      <a class="btn btn--ghost" href="{{ url_for('circulation.list_issues') }}">Cancel</a></div>
+  </form>
+</div>
+{% endblock %}

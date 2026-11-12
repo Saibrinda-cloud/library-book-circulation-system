@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% from "_macros.html" import history_table %}
+{% block title %}History of {{ member.full_name }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ member.full_name }}</h1><span class="muted">{{ member.email }} ({{ member.role_name }})</span></div>
+  <span class="muted">Fine balance: <b>{{ total_balance|money }}</b></span></div>
+{{ history_table(rows) }}
+<p><a href="{{ url_for('members.list_members') }}">Back to members</a></p>
+{% endblock %}

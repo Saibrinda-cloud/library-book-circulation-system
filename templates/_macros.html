@@ -1,0 +1,60 @@
+{% macro csrf() %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro field(name, label, form, errors, type="text", required=false, hint="", list="") %}
+<div class="field">
+  <label for="f-{{ name }}">{{ label }}{% if required %} *{% endif %}</label>
+  <input id="f-{{ name }}" name="{{ name }}" type="{{ type }}"
+         value="{{ '' if type == 'password' else (form.get(name) if form.get(name) is not none else '') }}"
+         {% if list %}list="{{ list }}"{% endif %}
+         {% if errors.get(name) %}class="invalid" aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}
+         {% if required %}required{% endif %}>
+  {% if hint %}<div class="hint">{{ hint }}</div>{% endif %}
+  {% if errors.get(name) %}<div class="error" id="e-{{ name }}">{{ errors[name] }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro stamp(due, days_overdue=0, returned=None) %}
+{%- if returned -%}<span class="stamp stamp--done">Returned {{ returned|fdate }}</span>
+{%- elif days_overdue > 0 -%}<span class="stamp stamp--late">Due {{ due|fdate }}, {{ days_overdue }} day{{ '' if days_overdue == 1 else 's' }} overdue</span>
+{%- else -%}<span class="stamp">Due {{ due|fdate }}</span>{%- endif -%}
+{% endmacro %}
+
+{% macro fine_badge(status) %}
+{%- if status == 'Paid' -%}<span class="badge badge--ok">Paid</span>
+{%- elif status == 'Partial' -%}<span class="badge badge--warn">Partly paid</span>
+{%- elif status == 'Unpaid' -%}<span class="badge badge--late">Unpaid</span>
+{%- else -%}<span class="badge badge--none">No fine</span>{%- endif -%}
+{% endmacro %}
+
+{% macro pager(pg) %}
+{% if pg.pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if pg.has_prev %}<a class="btn btn--ghost btn--small" href="{{ page_url(pg.page - 1) }}">Previous</a>{% endif %}
+  <span class="muted">Page {{ pg.page }} of {{ pg.pages }} ({{ pg.total }} records)</span>
+  {% if pg.has_next %}<a class="btn btn--ghost btn--small" href="{{ page_url(pg.page + 1) }}">Next</a>{% endif %}
+</nav>
+{% endif %}
+{% endmacro %}
+
+{% macro history_table(rows) %}
+<div class="table-wrap">
+{% if rows %}
+<table>
+  <thead><tr><th>Book</th><th>Issued</th><th>Status</th><th class="num">Fine</th><th class="num">Paid</th><th class="num">Balance</th><th>Fine status</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td><a href="{{ url_for('books.detail', book_id=r.book_id) }}">{{ r.title }}</a><div class="muted">{{ r.author }}</div></td>
+      <td>{{ r.issue_date|fdate }}</td>
+      <td>{{ stamp(r.due_date, r.days_overdue, r.return_date) }}</td>
+      <td class="num">{{ r.fine_amount|money if r.fine_status else '\u2013' }}</td>
+      <td class="num">{{ r.fine_paid|money if r.fine_status else '\u2013' }}</td>
+      <td class="num">{{ r.fine_balance|money if r.fine_status else '\u2013' }}</td>
+      <td>{{ fine_badge(r.fine_status) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<div class="empty">No borrowing records yet.</div>{% endif %}
+</div>
+{% endmacro %}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Library{% endblock %} | Library Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="{{ url_for('auth.index') }}">Library</a>
+    {% if g.user %}
+    <nav class="nav" aria-label="Main">
+      <a href="{{ url_for('dashboard.home') }}" {% if request.endpoint == 'dashboard.home' %}aria-current="page"{% endif %}>Home</a>
+      <a href="{{ url_for('books.list_books') }}" {% if request.blueprint in ('books', 'reviews') %}aria-current="page"{% endif %}>Books</a>
+      {% if g.user.role_name == 'Librarian' %}
+        <a href="{{ url_for('circulation.list_issues') }}" {% if request.blueprint == 'circulation' %}aria-current="page"{% endif %}>Issue and return</a>
+        <a href="{{ url_for('fines.list_fines') }}" {% if request.blueprint == 'fines' %}aria-current="page"{% endif %}>Fines</a>
+        <a href="{{ url_for('members.list_members') }}" {% if request.blueprint == 'members' %}aria-current="page"{% endif %}>Members</a>
+        <a href="{{ url_for('reports.index') }}" {% if request.blueprint == 'reports' %}aria-current="page"{% endif %}>Reports</a>
+      {% else %}
+        <a href="{{ url_for('dashboard.my_history') }}" {% if request.endpoint == 'dashboard.my_history' %}aria-current="page"{% endif %}>My borrowing</a>
+        <a href="{{ url_for('reports.popular') }}" {% if request.blueprint == 'reports' %}aria-current="page"{% endif %}>Popular books</a>
+      {% endif %}
+    </nav>
+    <div class="who">
+      <span>{{ g.user.full_name }} ({{ g.user.role_name }})</span>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="btn btn--light btn--small" type="submit">Log out</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash--{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>Library Management System: Flask, Psycopg and PostgreSQL. Demo project.</footer>
+</body>
+</html>

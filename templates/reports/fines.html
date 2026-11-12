@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Fine report{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Fine collection summary</h1><a href="{{ url_for('reports.index') }}">All reports</a></div>
+<div class="grid">
+  <div class="figure"><b>{{ summary.fines_recorded }}</b><span>Fines recorded</span></div>
+  <div class="figure"><b>{{ summary.total_fined|money }}</b><span>Total fined</span></div>
+  <div class="figure"><b>{{ summary.total_collected|money }}</b><span>Collected</span></div>
+  <div class="figure {{ 'figure--late' if summary.total_outstanding > 0 }}"><b>{{ summary.total_outstanding|money }}</b><span>Outstanding</span></div>
+</div>
+<p class="muted">Average fine {{ summary.average_fine|money }}; smallest {{ summary.smallest_fine|money }}; largest {{ summary.largest_fine|money }}.</p>
+<h2>By status</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Status</th><th class="num">Fines</th><th class="num">Fined</th><th class="num">Collected</th><th class="num">Outstanding</th></tr></thead>
+  <tbody>{% for r in by_status %}<tr><td>{{ r.status }}</td><td class="num">{{ r.fines }}</td><td class="num">{{ r.fined|money }}</td><td class="num">{{ r.collected|money }}</td><td class="num">{{ r.outstanding|money }}</td></tr>
+  {% else %}<tr><td colspan="5" class="empty">No fines yet.</td></tr>{% endfor %}</tbody></table></div>
+<h2>Outstanding balances</h2>
+<div class="table-wrap">
+{% if outstanding %}<table>
+  <thead><tr><th>Member</th><th>Book</th><th class="num">Fine</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th></tr></thead>
+  <tbody>{% for r in outstanding %}<tr><td>{{ r.member_name }}</td><td>{{ r.title }}</td><td class="num">{{ r.amount|money }}</td><td class="num">{{ r.amount_paid|money }}</td><td class="num">{{ r.balance|money }}</td><td>{{ r.status }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<div class="empty">No outstanding fines.</div>{% endif %}
+</div>
+{% endblock %}

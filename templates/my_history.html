@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% from "_macros.html" import history_table %}
+{% block title %}My borrowing{% endblock %}
+{% block content %}
+<div class="page-head"><h1>My borrowing history</h1>
+  <span class="muted">Fine balance to pay: <b>{{ total_balance|money }}</b></span></div>
+{{ history_table(rows) }}
+{% endblock %}

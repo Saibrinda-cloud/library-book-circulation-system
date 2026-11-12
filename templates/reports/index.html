@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Reports</h1></div>
+<div class="grid">
+  <a class="figure" href="{{ url_for('circulation.list_issues') }}"><b>Current issues</b><span>Every book on loan</span></a>
+  <a class="figure" href="{{ url_for('reports.overdue') }}"><b>Overdue</b><span>Days overdue and projected fines</span></a>
+  <a class="figure" href="{{ url_for('reports.fines') }}"><b>Fines</b><span>Collection summary and balances</span></a>
+  <a class="figure" href="{{ url_for('reports.popular') }}"><b>Popular books</b><span>Most borrowed</span></a>
+  <a class="figure" href="{{ url_for('reports.reviews') }}"><b>Reviews</b><span>Ratings per book</span></a>
+  <a class="figure" href="{{ url_for('reports.follow_up') }}"><b>Follow-up</b><span>Overdue or unpaid members</span></a>
+  <a class="figure" href="{{ url_for('reports.members') }}"><b>Students</b><span>Borrowing per student</span></a>
+</div>
+<h2>Borrowing by category</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Category</th><th class="num">Titles</th><th class="num">Copies owned</th><th class="num">Times issued</th></tr></thead>
+  <tbody>{% for r in by_category %}<tr><td>{{ r.category }}</td><td class="num">{{ r.titles }}</td><td class="num">{{ r.copies }}</td><td class="num">{{ r.times_issued }}</td></tr>{% endfor %}</tbody>
+</table>
+</div>
+{% endblock %}

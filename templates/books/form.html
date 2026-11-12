@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Edit book' if book else 'Add a book' }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ 'Edit book' if book else 'Add a book' }}</h1></div>
+<div class="panel">
+<form method="post" novalidate>
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="form-grid">
+    {{ field('title', 'Title', form, errors, required=true) }}
+    {{ field('author', 'Author(s)', form, errors, required=true) }}
+    {{ field('category', 'Category', form, errors, required=true, list='category-list', hint='Reuse an existing category where possible.') }}
+    {{ field('isbn', 'ISBN', form, errors, hint='Optional. Digits and hyphens, at least 10 characters.') }}
+    {{ field('publisher', 'Publisher', form, errors) }}
+    {{ field('publication_year', 'Publication year', form, errors, type='number') }}
+    {{ field('total_copies', 'Total copies owned', form, errors, type='number', required=true, hint='Include damaged copies.') }}
+    {{ field('damaged_copies', 'Damaged copies', form, errors, type='number', required=true, hint='Damaged copies cannot be lent.') }}
+  </div>
+  <datalist id="category-list">{% for c in categories %}<option value="{{ c }}">{% endfor %}</datalist>
+  <div class="actions"><button class="btn" type="submit">{{ 'Save changes' if book else 'Add book' }}</button>
+    <a class="btn btn--ghost" href="{{ url_for('books.detail', book_id=book.book_id) if book else url_for('books.list_books') }}">Cancel</a></div>
+</form>
+</div>
+{% endblock %}

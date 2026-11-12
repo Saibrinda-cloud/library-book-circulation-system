@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import fine_badge, pager %}
+{% block title %}Fines{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Fines</h1></div>
+<div class="grid">
+  <div class="figure"><b>{{ totals.fined|money }}</b><span>Total fined</span></div>
+  <div class="figure"><b>{{ totals.collected|money }}</b><span>Collected</span></div>
+  <div class="figure {{ 'figure--late' if totals.outstanding > 0 }}"><b>{{ totals.outstanding|money }}</b><span>Outstanding</span></div>
+</div>
+<p class="muted">Fine = overdue days &times; Rs. {{ fine_per_day }}, created when an overdue book is returned. Outstanding = fine &minus; amount paid.</p>
+<form class="filters" method="get">
+  <div class="field field--wide"><label for="q">Search member or book</label><input id="q" name="q" value="{{ q }}"></div>
+  <div class="field"><label for="status">Show</label><select id="status" name="status">
+    {% for value, label in [('outstanding', 'Outstanding'), ('paid', 'Paid'), ('all', 'All fines')] %}
+    <option value="{{ value }}" {{ 'selected' if status == value }}>{{ label }}</option>{% endfor %}</select></div>
+  <button class="btn" type="submit">Filter</button>
+</form>
+<div class="table-wrap">
+{% if rows %}
+<table>
+  <thead><tr><th>Member</th><th>Book</th><th>Returned</th><th class="num">Fine</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th><th>Record payment</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr><td>{{ r.full_name }}</td><td>{{ r.title }}</td><td>{{ r.return_date|fdate }}</td>
+      <td class="num">{{ r.amount|money }}</td><td class="num">{{ r.amount_paid|money }}</td><td class="num">{{ r.balance|money }}</td>
+      <td>{{ fine_badge(r.status) }}</td>
+      <td>{% if r.balance > 0 %}<form class="inline-form" method="post" action="{{ url_for('fines.pay', issue_id=r.issue_id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input name="payment" inputmode="decimal" value="{{ r.balance }}" aria-label="Payment amount in rupees" required>
+        <button class="btn btn--small" type="submit">Record</button></form>{% else %}&ndash;{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<div class="empty">No fines match.</div>{% endif %}
+</div>
+{{ pager(pg) }}
+{% endblock %}
